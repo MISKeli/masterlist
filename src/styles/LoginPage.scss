@@ -1,0 +1,18 @@
+.login-page {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: flex-end;
+  background-color: bisque;
+  padding: 10rem;
+  &__login-card {
+    background-color: aqua;
+    padding: 2rem;
+    width: 25vw;
+  }
+  &__card-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
