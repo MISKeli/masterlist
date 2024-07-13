@@ -14,4 +14,4 @@ const loginApi = indexApi
     }),
   });
 
-  export const {usePostLoginMutation} = loginApi;
+export const { usePostLoginMutation } = loginApi;

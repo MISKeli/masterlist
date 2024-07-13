@@ -1,7 +1,7 @@
 import { createTheme, ThemeProvider } from "@mui/material";
 import React from "react";
 import palette from "../styles/__palette.module.scss";
-import { paletteSchema } from "../schemas/peletteSchema";
+import { paletteSchema } from "../schemas/paletteSchema";
 
 const ProvidesTheme = ({ children }) => {
   const theme = createTheme({

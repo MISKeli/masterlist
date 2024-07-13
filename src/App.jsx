@@ -5,13 +5,17 @@ import "./App.scss";
 import { RouterProvider } from "react-router-dom";
 import { router } from "./routes/router";
 import ProvidesTheme from "./theme/ProvidesTheme";
+import { Provider } from "react-redux";
+import store from "./app/store";
 
 function App() {
   return (
     <>
-      <ProvidesTheme>
-        <RouterProvider router={router} />
-      </ProvidesTheme>
+      <Provider store={store}>
+        <ProvidesTheme>
+          <RouterProvider router={router} />
+        </ProvidesTheme>
+      </Provider>
     </>
   );
 }
