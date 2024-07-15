@@ -1,17 +1,19 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Box, Button, Paper, TextField, Typography } from "@mui/material";
-import React from "react";
+import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { loginSchema } from "../schemas/validationSchema";
 import { infos } from "../schemas/infos";
 import "../styles/LoginPage.scss";
 import { usePostLoginMutation } from "../features/api/loginApi";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { encrypt } from "../utils/encrypt";
+import { useDispatch, useSelector } from "react-redux";
+import { loginSlice } from "../features/slice/authSlice";
 
 const Login = () => {
   const navigate = useNavigate();
-
+  const dispatch = useDispatch();
   const {
     control,
     handleSubmit,
@@ -22,16 +24,25 @@ const Login = () => {
   });
 
   const [login] = usePostLoginMutation();
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
   const loginHandler = (data) => {
     login(data)
       .unwrap()
       .then((res) => {
-        sessionStorage.setItem("token",encrypt(res.result.token))
+        dispatch(
+          loginSlice({ token: res?.result?.token, user: res?.result?.user })
+        );
+        sessionStorage.setItem("token", encrypt(res.result.token));
         navigate("/");
       })
       .catch((error) => console.log({ error }));
   };
+  useEffect(() => {
+    if (isAuthenticated) {
+      return navigate("/");
+    }
+  }, [isAuthenticated]);
 
   return (
     <>

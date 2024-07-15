@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { decrypt, encrypt } from "../../utils/encrypt";
 
 const { decryptedData: decryptedToken } = decrypt(
-  sessionStorage.getItem("TOKEN")
+  sessionStorage.getItem("token")
 );
 const authSlice = createSlice({
   name: "auth",

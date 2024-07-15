@@ -1,0 +1,32 @@
+import {
+  PersonOutline,
+  PersonRounded,
+  SupervisedUserCircleOutlined,
+  SupervisedUserCircleRounded,
+} from "@mui/icons-material";
+
+export const moduleSchema = [
+  {
+    name: "User Management",
+    section: "user_management",
+    icon: SupervisedUserCircleOutlined,
+    iconOn: SupervisedUserCircleRounded,
+    to: "/users_management",
+    subCategory: [
+      {
+        name: "User Account",
+        section: "user_account",
+        icon: PersonOutline,
+        iconOn: PersonRounded,
+        to: "/users_management/users_account",
+      },
+      {
+        name: "Role Management",
+        section: "role_management",
+        icon: SupervisedUserCircleOutlined,
+        iconOn: SupervisedUserCircleRounded,
+        to: "/users_management/role_management",
+      },
+    ],
+  },
+];

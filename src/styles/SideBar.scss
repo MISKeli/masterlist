@@ -1,0 +1,15 @@
+@import "__palette.module";
+.sidebar {
+  background-color: $caution-main;
+  height: 100%;
+
+  transition: width 0.5s ease-in-out;
+}
+
+.sidebar-close {
+  width: 150px;
+}
+
+.sidebar-open {
+  width: 350px;
+}
