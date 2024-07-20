@@ -1,4 +1,6 @@
 import {
+  DashboardOutlined,
+  DashboardRounded,
   PersonOutline,
   PersonRounded,
   SupervisedUserCircleOutlined,
@@ -6,6 +8,14 @@ import {
 } from "@mui/icons-material";
 
 export const moduleSchema = [
+  {
+    name: "Dashboard",
+    section: "Dashboard",
+    icon: DashboardOutlined,
+    iconOn: DashboardRounded,
+    to: "/",
+    subCategory: null,
+  },
   {
     name: "User Management",
     section: "user_management",

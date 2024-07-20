@@ -16,8 +16,7 @@ const MainPage = () => {
           <Navbar />{" "}
         </Box>
         <Box className="main-page__content-outlet">
-          {/* <Outlet /> */}
-          error
+          <Outlet />
         </Box>
       </Box>
     </Box>

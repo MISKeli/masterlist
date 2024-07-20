@@ -2,6 +2,23 @@
 .sidebar {
   background-color: $caution-main;
   height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  &__header {
+    height: 100px;
+  }
+
+  &__footer {
+    height: 100px;
+  }
+  &__content {
+    flex: 1;
+
+    &__subcat{
+      padding-left: 2rem;
+    }
+  }
 
   transition: width 0.5s ease-in-out;
 }
@@ -11,5 +28,5 @@
 }
 
 .sidebar-open {
-  width: 350px;
+  width: 250px;
 }

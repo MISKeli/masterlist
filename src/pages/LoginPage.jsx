@@ -30,10 +30,8 @@ const Login = () => {
     login(data)
       .unwrap()
       .then((res) => {
-        dispatch(
-          loginSlice({ token: res?.result?.token, user: res?.result?.user })
-        );
-        sessionStorage.setItem("token", encrypt(res.result.token));
+        dispatch(loginSlice({ token: res?.token, user: res?.user }));
+        sessionStorage.setItem("token", encrypt(res.token));
         navigate("/");
       })
       .catch((error) => console.log({ error }));

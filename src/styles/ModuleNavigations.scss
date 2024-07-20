@@ -1,0 +1,9 @@
+@import "__palette.module";
+.module-nav {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  &:hover {
+    background-color: $info-main;
+  }
+}
