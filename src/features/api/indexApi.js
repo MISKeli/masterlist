@@ -5,7 +5,7 @@ export const indexApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: `${import.meta.env.VITE_MASTERLIST_ENDPOINT}`,
     prepareHeaders: (headers, { getState }) => {
-      // headers.set("Authorized")'
+      headers.set("Authorization", "Bearer " + getState().auth.token);
       headers.set("Accept", "application/json");
       return headers;
     },

@@ -32,6 +32,7 @@ const Login = () => {
       .then((res) => {
         dispatch(loginSlice({ token: res?.token, user: res?.user }));
         sessionStorage.setItem("token", encrypt(res.token));
+        sessionStorage.setItem("user", JSON.stringify(res.user));
         navigate("/");
       })
       .catch((error) => console.log({ error }));
