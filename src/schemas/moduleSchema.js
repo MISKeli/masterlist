@@ -17,8 +17,8 @@ export const moduleSchema = [
     subCategory: null,
   },
   {
-    name: "User Management",
-    section: "user_management",
+    name: "Users Management",
+    section: "users_management",
     icon: SupervisedUserCircleOutlined,
     iconOn: SupervisedUserCircleRounded,
     to: "/users_management",
