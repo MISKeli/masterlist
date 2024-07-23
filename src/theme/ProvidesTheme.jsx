@@ -6,8 +6,20 @@ import { paletteSchema } from "../schemas/paletteSchema";
 const ProvidesTheme = ({ children }) => {
   const theme = createTheme({
     palette: { ...paletteSchema },
+    typography: {
+      fontFamily: ["Poppins"],
+    },
 
     components: {
+      MuiTable: {
+        styleOverrides: {
+          root: {
+            tableLayout: "auto",
+            height: "100%",
+            overflow: "auto",
+          },
+        },
+      },
       MuiButton: {
         styleOverrides: {
           root: {

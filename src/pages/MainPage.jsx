@@ -12,9 +12,10 @@ const MainPage = () => {
         <Sidebar />
       </Box>
       <Box className="main-page__content">
-        <Box className="main-page__content-header">
-          <Navbar />{" "}
+        <Box>
+          <Navbar />
         </Box>
+
         <Box className="main-page__content-outlet">
           <Outlet />
         </Box>

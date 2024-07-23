@@ -16,7 +16,7 @@ const Sidebar = () => {
   const role = ROLE_DATA?.result?.find((role) => role.id == user.role_id);
   const AccessPermission = role?.access_permission;
 
-  console.log({ ROLE_DATA });
+ 
 
   const dispatch = useDispatch();
   const sidebar = useSelector((state) => state.misc.sidebar);

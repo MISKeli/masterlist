@@ -1,8 +1,11 @@
 import {
   Box,
   Button,
+  Chip,
   Paper,
+  Popover,
   Table,
+  TableBody,
   TableCell,
   TableContainer,
   TableHead,
@@ -11,12 +14,45 @@ import {
 } from "@mui/material";
 import React, { useState } from "react";
 import { infos } from "../schemas/infos";
-import "../styles/RoleManagementPage.scss";
-import { useGetRoleQuery } from "../features/api/roleApi";
+import "../styles/Masterlist.scss";
+import {
+  useArchivedRoleMutation,
+  useGetRoleQuery,
+} from "../features/api/roleApi";
+import moment from "moment/moment";
+import {
+  ArchiveRounded,
+  EditRounded,
+  MoreVertOutlined,
+} from "@mui/icons-material";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "sonner";
+import { setPokedData } from "../features/slice/authSlice";
+import RoleCreate from "../components/roleManagement/RoleCreate";
 
 const RoleManagementPage = () => {
   const [open, setOpen] = useState(false);
-  const { data: roleData } = useGetRoleQuery();
+  const [view, setView] = useState("");
+  const [viewOnly, setViewOnly] = useState(false);
+  const [isUpdate, setIsUpdate] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const pokedData = useSelector((state) => state.auth.pokedData);
+  console.log({ pokedData });
+  const { data: roleData, isLoading: isRoleLoading } = useGetRoleQuery();
+  const [archive] = useArchivedRoleMutation();
+
+  // error to
+  const handleArchive = () => {
+    archive(pokedData.id)
+      .unwrap()
+      .then((res) => {
+        toast.success(res?.message);
+      })
+      .catch((error) => {
+        toast.error(error?.message);
+      });
+  };
 
   const openPopUp = () => {
     setOpen(true);
@@ -24,6 +60,21 @@ const RoleManagementPage = () => {
 
   const closePopUp = () => {
     setOpen(false);
+    setView(""); // Reset view state
+    setViewOnly(false);
+    setIsUpdate(false); // Reset isEdit state
+    setAnchorEl(null);
+  };
+  // di ko pa gets
+  const handlePopoverOpen = (event, roleInfo) => {
+    setAnchorEl(event.currentTarget);
+    setIsUpdate(false);
+    setView(roleInfo);
+  };
+
+  const handlePopoverClose = () => {
+    setAnchorEl(null);
+    setIsUpdate(false);
   };
 
   const TableColumn = [
@@ -34,22 +85,49 @@ const RoleManagementPage = () => {
     { id: "created_at", name: "Date Created" },
     { id: "action", name: "Action" },
   ];
+  const dispatch = useDispatch();
+
+  const haddlePokedData = (data) => {
+    console.log({ data });
+    dispatch(setPokedData(data));
+  };
 
   return (
     <>
-      <Box className="role-main">
-        <Box className="role-main__header">
-          <Typography className="role-header__title">
+      {" "}
+      <RoleCreate
+        //THIS ARE THE PROPS
+        open={open}
+        closeHandler={closePopUp}
+        data={view}
+        isViewOnly={viewOnly}
+        isUpdate={isUpdate}
+      />
+      <Box className="masterlist-main">
+        <Box className="masterlist-main__header">
+          <Typography
+            className="masterlist-header__title"
+            variant="h6"
+            color={"primary"}
+          >
             {infos.role_title}
           </Typography>
-          <Button className="role-header__button" variant="contained">
+          <Button
+            className="masterlist-header__button"
+            variant="contained"
+            open={open}
+            onClick={openPopUp}
+          >
             {infos.role_add_button}
           </Button>
         </Box>
-        <Box className="role-main__content"></Box>
-        <Paper className="role-content__paper">
-          <TableContainer>
-            <Table>
+        <br />
+        <Box className="masterlist-main__content">
+          <TableContainer
+            component={Paper}
+            sx={{ overflow: "auto", height: "100%" }}
+          >
+            <Table stickyHeader>
               <TableHead>
                 <TableRow>
                   {TableColumn.map((role) => (
@@ -57,10 +135,88 @@ const RoleManagementPage = () => {
                   ))}
                 </TableRow>
               </TableHead>
+              <TableBody>
+                {roleData?.result.data.map((roleInfo, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{roleInfo.id}</TableCell>
+                    <TableCell>{roleInfo.name}</TableCell>
+                    <TableCell
+                      onClick={() => {
+                        setView(roleInfo);
+                        openPopUp();
+                        setViewOnly(true);
+                      }}
+                      style={{
+                        cursor: "pointer",
+                        textDecoration: "underline",
+                        color: "#3259c4",
+                      }}
+                    >
+                      view
+                    </TableCell>
+                    <TableCell>
+                      <Chip
+                        label={roleInfo.is_active ? "active" : "inactive"}
+                        color={roleInfo.is_active ? "success" : "error"}
+                        variant="outlined"
+                        size="small"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      {moment(roleInfo.created_at).format("YYYY-MM-DD")}
+                    </TableCell>
+                    <TableCell>
+                      <MoreVertOutlined
+                        onClick={(event) => {
+                          handlePopoverOpen(event, roleInfo);
+                          haddlePokedData(roleInfo);
+                        }}
+                        style={{ cursor: "pointer" }}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
             </Table>
           </TableContainer>
-        </Paper>
-        <Box className="role-main__footer"></Box>
+          <Popover
+            open={Boolean(anchorEl)}
+            anchorEl={anchorEl}
+            onClose={handlePopoverClose}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "center",
+            }}
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "center",
+            }}
+          >
+            <Box sx={{ p: 2 }}>
+              <Button
+                variant="text"
+                onClick={() => {
+                  handlePopoverClose();
+                }}
+                startIcon={<EditRounded />}
+              >
+                Edit
+              </Button>
+              <Button
+                variant="text"
+                onClick={() => {
+                  handlePopoverClose();
+                  handleArchive();
+                }}
+                startIcon={<ArchiveRounded />}
+              >
+                Archive
+              </Button>
+            </Box>
+          </Popover>
+        </Box>
+
+        <Box className="masterlist-main__footer"></Box>
       </Box>
     </>
   );

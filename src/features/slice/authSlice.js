@@ -10,6 +10,7 @@ const authSlice = createSlice({
     isAuthenticated: !!decryptedToken,
     token: decryptedToken,
     user: JSON.parse(sessionStorage.getItem("user")),
+    pokedData: null,
   },
   reducers: {
     loginSlice: (state, action) => {
@@ -21,8 +22,11 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.token = null;
     },
+    setPokedData: (state, action) => {
+      state.pokedData = action.payload;
+    },
   },
 });
 
-export const { loginSlice, logoutSlice } = authSlice.actions;
+export const { loginSlice, logoutSlice, setPokedData } = authSlice.actions;
 export default authSlice.reducer;

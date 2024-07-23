@@ -7,6 +7,7 @@ import { router } from "./routes/router";
 import ProvidesTheme from "./theme/ProvidesTheme";
 import { Provider } from "react-redux";
 import store from "./app/store";
+import { Toaster } from "sonner";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
       <Provider store={store}>
         <ProvidesTheme>
           <RouterProvider router={router} />
+          <Toaster position="bottom-right" richColors />
         </ProvidesTheme>
       </Provider>
     </>
