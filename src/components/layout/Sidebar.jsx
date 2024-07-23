@@ -13,10 +13,10 @@ const Sidebar = () => {
   });
 
   const user = JSON.parse(sessionStorage.getItem("user"));
-  const role = ROLE_DATA?.result?.data?.find((role) => role.id == user.role_id);
+  const role = ROLE_DATA?.result?.find((role) => role.id == user.role_id);
   const AccessPermission = role?.access_permission;
 
-  console.log({ AccessPermission });
+  console.log({ ROLE_DATA });
 
   const dispatch = useDispatch();
   const sidebar = useSelector((state) => state.misc.sidebar);

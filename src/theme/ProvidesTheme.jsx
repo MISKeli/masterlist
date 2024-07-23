@@ -6,17 +6,15 @@ import { paletteSchema } from "../schemas/paletteSchema";
 const ProvidesTheme = ({ children }) => {
   const theme = createTheme({
     palette: { ...paletteSchema },
-  
 
     components: {
       MuiButton: {
         styleOverrides: {
           root: {
-            borderRadius: "5rem",
+            borderRadius: 10,
           },
         },
       },
-    
     },
   });
   return <ThemeProvider theme={theme}>{children}</ThemeProvider>;

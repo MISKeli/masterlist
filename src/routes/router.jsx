@@ -28,7 +28,7 @@ export const router = createBrowserRouter([
             element: <UserManagementPage />,
             children: [
               {
-                path: "user_account",
+                path: "users_account",
                 element: <UserAccountPage />,
               },
               {
