@@ -42,7 +42,6 @@ const RoleManagementPage = () => {
   const { data: roleData, isLoading: isRoleLoading } = useGetRoleQuery();
   const [archive] = useArchivedRoleMutation();
 
-  // error to
   const handleArchive = () => {
     archive(pokedData.id)
       .unwrap()
@@ -91,10 +90,14 @@ const RoleManagementPage = () => {
     console.log({ data });
     dispatch(setPokedData(data));
   };
+  const openDialogForUpdate = () => {
+    setOpen(true);
+    setIsUpdate(true);
+  };
 
   return (
     <>
-      {" "}
+      
       <RoleCreate
         //THIS ARE THE PROPS
         open={open}
@@ -102,6 +105,7 @@ const RoleManagementPage = () => {
         data={view}
         isViewOnly={viewOnly}
         isUpdate={isUpdate}
+        handlePopoverClose
       />
       <Box className="masterlist-main">
         <Box className="masterlist-main__header">
@@ -197,6 +201,7 @@ const RoleManagementPage = () => {
                 variant="text"
                 onClick={() => {
                   handlePopoverClose();
+                  openDialogForUpdate();
                 }}
                 startIcon={<EditRounded />}
               >

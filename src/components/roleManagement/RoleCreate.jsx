@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { roleSchema } from "../../schemas/validationSchema";
 import {
@@ -26,6 +26,7 @@ import {
   CheckBoxRounded,
 } from "@mui/icons-material";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { toast } from "sonner";
 
 const RoleCreate = ({
   open = false,
@@ -59,21 +60,61 @@ const RoleCreate = ({
       return [ap]; // Wrap in an array to maintain consistency
     }
   });
-  
 
-    const handleFormvalue = () => {
-      setValue("name", pokedData?.name || "");
-      setValue("access_permission",moduleSchema.filter((item) =>
-          pokedData?.access_permission?.includes(item.name) || ""));
+  const handleFormValue = () => {
+    setValue("name", pokedData?.name || "");
+    setValue(
+      "access_permission",
+      moduleSchema.filter(
+        (item) => pokedData?.access_permission?.includes(item.name) || ""
+      )
+    );
+  };
 
+  useEffect(() => {
+    if (open == true && pokedData) {
+      handleFormValue();
     }
+  }, [open, data]);
+  console.log({ pokedData });
 
-  //   const submitHandler = (roleData) => {
-  //     const body = {
-  //       name: roleData.name,
-  //       access_permission: roleData.access_permission.map((item) => item.name),
-  //     };
-  //   };
+  const submitHandler = (roleData) => {
+    const body = {
+      name: roleData.name,
+      access_permission: roleData.access_permission.map((item) => item.name),
+    };
+    const updateBody = {
+      name: roleData.name,
+      access_permission: roleData.access_permission.map((item) => item.name),
+    };
+
+    if (isUpdate) {
+      updateRole({ id: pokedData.id, ...updateBody })
+        .then((res) => {
+          toast.success(res?.data?.message);
+          reset();
+          closeHandler();
+        })
+        .catch((error) => {
+          toast.error(error.data?.message);
+          reset();
+          closeHandler();
+        });
+    } else {
+      addRole(body)
+        .unwrap()
+        .then((res) => {
+          toast.success(res?.message);
+          reset();
+          closeHandler();
+        })
+        .catch((error) => {
+          toast.error(error.data?.message);
+          closeHandler();
+          reset();
+        });
+    }
+  };
 
   return (
     <>
@@ -85,7 +126,7 @@ const RoleCreate = ({
         </DialogTitle>
         <br />
         <DialogContent>
-          <form onSubmit={handleSubmit(console.log("object"))} id="submit-form">
+          <form onSubmit={handleSubmit(submitHandler)} id="submit-form">
             <Grid container>
               <Grid item xs={12}>
                 <Controller
