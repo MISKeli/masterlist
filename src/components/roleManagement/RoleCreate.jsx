@@ -194,7 +194,7 @@ const RoleCreate = ({
               {isUpdate ? "Save" : "Create"}
             </Button>
           )}
-          <Button onClick={closeHandler}  color="error">
+          <Button onClick={closeHandler} color="error">
             CANCEL
           </Button>
         </DialogActions>
