@@ -65,9 +65,19 @@ const RoleCreate = ({
     setValue("name", pokedData?.name || "");
     setValue(
       "access_permission",
-      moduleSchema.filter(
-        (item) => pokedData?.access_permission?.includes(item.name) || ""
-      )
+      moduleSchema.filter((item) => {
+        if (pokedData?.access_permission) {
+          if (pokedData.access_permission.includes(item.name)) {
+            return true; // Include if main category matches
+          } else if (item.subCategory) {
+            // Check sub-categories if present
+            return item.subCategory.some((subItem) =>
+              pokedData.access_permission.includes(subItem.name)
+            );
+          }
+        }
+        return false;
+      })
     );
   };
 
@@ -161,6 +171,7 @@ const RoleCreate = ({
                   getOptionLabel={(option) => option?.name ?? []}
                   getOptionKey={(option, index) => index}
                   isOptionEqualToValue={(option, value) => {
+                    console.log({ value });
                     return option?.name === value?.name;
                   }}
                   renderOption={(props, option, { selected }) => (

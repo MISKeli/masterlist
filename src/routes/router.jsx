@@ -6,6 +6,7 @@ import DashboardPage from "../pages/DashboardPage";
 import UserManagementPage from "../pages/UserManagementPage";
 import UserAccountPage from "../pages/UserAccountPage";
 import RoleManagementPage from "../pages/RoleManagementPage";
+import AccessPermission from "../components/AccessPermission";
 
 export const router = createBrowserRouter([
   {
@@ -29,11 +30,19 @@ export const router = createBrowserRouter([
             children: [
               {
                 path: "users_account",
-                element: <UserAccountPage />,
+                element: (
+                  <AccessPermission permission={"User Account"}>
+                    <UserAccountPage />
+                  </AccessPermission>
+                ),
               },
               {
                 path: "role_management",
-                element: <RoleManagementPage />,
+                element: (
+                  <AccessPermission permission={"Role Management"}>
+                    <RoleManagementPage />
+                  </AccessPermission>
+                ),
               },
             ],
           },

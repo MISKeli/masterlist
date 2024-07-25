@@ -38,7 +38,7 @@ const RoleManagementPage = () => {
   const [anchorEl, setAnchorEl] = useState(null);
 
   const pokedData = useSelector((state) => state.auth.pokedData);
-  console.log({ pokedData });
+
   const { data: roleData, isLoading: isRoleLoading } = useGetRoleQuery();
   const [archive] = useArchivedRoleMutation();
 
@@ -51,6 +51,10 @@ const RoleManagementPage = () => {
       .catch((error) => {
         toast.error(error?.message);
       });
+  };
+  const openDialogForUpdate = () => {
+    setOpen(true);
+    setIsUpdate(true);
   };
 
   const openPopUp = () => {
@@ -86,18 +90,13 @@ const RoleManagementPage = () => {
   ];
   const dispatch = useDispatch();
 
-  const haddlePokedData = (data) => {
-    console.log({ data });
+  const handlePokedData = (data) => {
+    console.log({ pokedData });
     dispatch(setPokedData(data));
-  };
-  const openDialogForUpdate = () => {
-    setOpen(true);
-    setIsUpdate(true);
   };
 
   return (
     <>
-      
       <RoleCreate
         //THIS ARE THE PROPS
         open={open}
@@ -149,6 +148,7 @@ const RoleManagementPage = () => {
                         setView(roleInfo);
                         openPopUp();
                         setViewOnly(true);
+                        handlePokedData(roleInfo)
                       }}
                       style={{
                         cursor: "pointer",
@@ -173,7 +173,7 @@ const RoleManagementPage = () => {
                       <MoreVertOutlined
                         onClick={(event) => {
                           handlePopoverOpen(event, roleInfo);
-                          haddlePokedData(roleInfo);
+                          handlePokedData(roleInfo);
                         }}
                         style={{ cursor: "pointer" }}
                       />
@@ -201,7 +201,7 @@ const RoleManagementPage = () => {
                 variant="text"
                 onClick={() => {
                   handlePopoverClose();
-                  openDialogForUpdate();
+                  openDialogForUpdate(true);
                 }}
                 startIcon={<EditRounded />}
               >
