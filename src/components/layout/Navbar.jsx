@@ -6,6 +6,7 @@ import {
   ListItemText,
   MenuItem,
   Popover,
+  Typography,
 } from "@mui/material";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -54,6 +55,7 @@ const Navbar = () => {
     dispatch(logoutSlice());
     sessionStorage.clear();
   };
+  const user = JSON.parse(sessionStorage.getItem("user"));
 
   return (
     <Box className="navbar">
@@ -65,11 +67,16 @@ const Navbar = () => {
         >
           <Menu />
         </Button>
-        <IconButton onClick={handlePopoverOpen}>
-          <AccountCircleRounded />
-        </IconButton>
+        <Box className="navbar__name">
+          <Typography className="navbar__name-typo">
+            {user.first_name} {user.last_name}
+          </Typography>
+          <IconButton onClick={handlePopoverOpen}>
+            <AccountCircleRounded className="navbar__name-icon" />
+          </IconButton>
+        </Box>
 
-        <Popover
+        <Popover 
           open={Boolean(anchorEl)}
           anchorEl={anchorEl}
           onClose={handlePopoverClose}
@@ -82,18 +89,22 @@ const Navbar = () => {
             horizontal: "right",
           }}
         >
-          <MenuItem onClick={handleLogoutClick}>
-            <ListItemIcon>
-              <PowerSettingsNew />
-            </ListItemIcon>
-            <ListItemText primary="Logout" />
-          </MenuItem>
-          <MenuItem onClick={handlePopoverClose}>
-            <ListItemIcon>
-              <LockReset />
-            </ListItemIcon>
-            <ListItemText primary="Change Password" />
-          </MenuItem>
+          <Box className="navbar__name-logout">
+            <MenuItem onClick={handleLogoutClick}>
+              <ListItemIcon>
+                <PowerSettingsNew />
+              </ListItemIcon>
+              <ListItemText primary="Logout" />
+            </MenuItem>
+          </Box>
+          <Box className="navbar__name-changePass">
+            <MenuItem onClick={handlePopoverClose}>
+              <ListItemIcon>
+                <LockReset />
+              </ListItemIcon>
+              <ListItemText primary="Change Password" />
+            </MenuItem>
+          </Box>
         </Popover>
         <ConfirmedDialog
           open={open}

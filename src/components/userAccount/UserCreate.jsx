@@ -1,5 +1,5 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import React from "react";
+import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { userSchema } from "../../schemas/validationSchema";
 import {
@@ -22,12 +22,14 @@ import {
 import { toast } from "sonner";
 import { setPokedData } from "../../features/slice/authSlice";
 import { SaveAltOutlined } from "@mui/icons-material";
+import { useSelector } from "react-redux";
 
 const UserCreate = ({ open = false, closeHandler, data, isUpdate = false }) => {
   const {
     handleSubmit,
     reset,
     control,
+
     setValue,
     formState: { errors },
   } = useForm({
@@ -42,15 +44,17 @@ const UserCreate = ({ open = false, closeHandler, data, isUpdate = false }) => {
         contact_details: "",
         sex: "",
       },
+      username: "",
+      role_id: "",
+      role: null,
     },
-    username: "",
-    role_id: "",
   });
 
   const [userCreate] = useAddUserMutation();
   const [userUpdate] = useUpdateUserMutation();
 
   const { data: roleData, isLoading: isRoleLoading } = useGetRoleQuery();
+  const pokedData = useSelector((state) => state.auth.pokedData);
 
   const [
     triggerFetchCedar,
@@ -84,9 +88,31 @@ const UserCreate = ({ open = false, closeHandler, data, isUpdate = false }) => {
         : ""
     );
   };
+  const handleFormValue = () => {
+    setValue(
+      "cedarData",
+      `${pokedData.id_prefix} ${pokedData.id_no} ${pokedData.last_name} ${pokedData.first_name}` ||
+        ""
+    );
+    setValue("personal_info.id_prefix", pokedData?.id_prefix || "");
+    setValue("personal_info.id_no", pokedData?.id_no || "");
+    setValue("personal_info.first_name", pokedData?.first_name || "");
+    setValue("personal_info.contact_details", pokedData?.contact_details || "");
+    setValue("role", pokedData?.role || "");
+    setValue("personal_info.middle_name", pokedData?.middle_name || "");
+    setValue("personal_info.last_name", pokedData?.last_name || "");
+    setValue("personal_info.sex", pokedData?.sex || "");
+    setValue("role_id", pokedData?.role.id || "");
+    setValue("username", pokedData?.username || "");
+  };
+
+  useEffect(() => {
+    if (open == true && pokedData) {
+      handleFormValue();
+    }
+  }, [open]);
 
   const submitHandler = (userData) => {
-    console.log({ userData });
     const body = {
       personal_info: {
         id_prefix: userData.personal_info.id_prefix,
@@ -111,9 +137,9 @@ const UserCreate = ({ open = false, closeHandler, data, isUpdate = false }) => {
     };
 
     if (isUpdate) {
-      userUpdate({ id: setPokedData.id, ...updateBody })
+      userUpdate({ id: pokedData.id, ...updateBody })
         .then((res) => {
-          toast.success(res?.data?.message);
+          toast.success(res?.data.message);
           reset();
           closeHandler();
         })
@@ -140,6 +166,7 @@ const UserCreate = ({ open = false, closeHandler, data, isUpdate = false }) => {
 
   const handleClose = () => {
     reset();
+
     closeHandler();
   };
   return (
@@ -213,7 +240,6 @@ const UserCreate = ({ open = false, closeHandler, data, isUpdate = false }) => {
                         }}
                         getOptionLabel={(option) => option.name}
                         onChange={(e, value) => {
-                          console.log({ value });
                           setValue("role_id", value.id);
                         }}
                         renderInput={(params) => (

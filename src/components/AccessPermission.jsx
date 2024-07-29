@@ -13,7 +13,7 @@ const AccessPermission = ({ children, permission }) => {
 
   const Access_Permission = role?.access_permission?.includes(permission);
 
-  console.log(Access_Permission);
+  //console.log(Access_Permission);
 
   if (Access_Permission) {
     return <>{children}</>;

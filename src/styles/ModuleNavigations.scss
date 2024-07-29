@@ -1,9 +1,30 @@
 @import "__palette.module";
+
 .module-nav {
   display: flex;
+  align-items: center; // Center items vertically
   gap: 1rem;
   padding: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease; // Smooth transition for color changes
+
+  &.module-nav--active {
+    background-color: $primary-main; // Background color for the active state
+    color: $background-header; // Text color for the active state
+  }
+
   &:hover {
-    background-color: $info-main;
+    background-color: $info-main; // Background color on hover
+  }
+
+  .module-nav__icon-container {
+    // You can add icon-specific styles here if needed
+  }
+
+  .module-nav__name-container {
+    // Styles for the text container
+    Typography {
+      color: inherit; // Ensure text color is inherited from parent
+    }
   }
 }

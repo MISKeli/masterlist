@@ -1,9 +1,11 @@
 @import "__palette.module";
+
 .sidebar {
-  background-color: $caution-main;
+  background-color: $text-disabled;
   height: 100%;
   display: flex;
   flex-direction: column;
+  transition: width 0.5s ease-in-out;
 
   &__header {
     height: 100px;
@@ -12,21 +14,61 @@
   &__footer {
     height: 100px;
   }
+
   &__content {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    //padding: 1rem; // Optional: Add padding for content
 
-    &__subcat{
-      padding-left: 2rem;
+    // Adjust spacing and alignment
+    .module-nav {
+      display: flex;
+      align-items: center;
+      gap: 1rem; // Space between icon and text
+    }
+
+    &--hidden-text {
+      .module-nav__name-container {
+        //display: none; // Hide text when sidebar is closed
+      }
     }
   }
 
-  transition: width 0.5s ease-in-out;
-}
+  &.sidebar-close {
+    width: 56px;
+    overflow: hidden;
+    .module-nav {
+      //justify-content: center; // Center icons horizontally
+      .module-nav__icon-container {
+        font-size: 1rem; // Adjust icon size if needed
+      }
+    }
 
-.sidebar-close {
-  width: 150px;
-}
+    &__content {
+      display: flex;
+      flex-direction: column;
+      align-items: center; // Center all items horizontally
+      overflow: hidden;
+      .module-nav__name-container {
+        display: none; // Hide text
+        overflow: hidden;
+      }
+    }
+  }
 
-.sidebar-open {
-  width: 250px;
+  &.sidebar-open {
+    width: 250px;
+
+    .module-nav {
+      .module-nav__icon-container {
+        font-size: 1rem; // Adjust icon size if needed
+      }
+
+      .module-nav__name-container {
+        display: block; // Show text
+      }
+    }
+  }
 }

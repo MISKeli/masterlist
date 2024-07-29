@@ -5,7 +5,6 @@ import {
   useAddRoleMutation,
   useUpdateRoleMutation,
 } from "../../features/api/roleApi";
-import { useSelector } from "react-redux";
 import {
   Button,
   Checkbox,
@@ -37,11 +36,9 @@ const RoleCreate = ({
 }) => {
   const [addRole] = useAddRoleMutation();
   const [updateRole] = useUpdateRoleMutation();
-  const pokedData = useSelector((state) => state.auth.pokedData);
 
   const {
     control,
-    watch,
     handleSubmit,
     setValue,
     reset,
@@ -50,65 +47,56 @@ const RoleCreate = ({
     resolver: yupResolver(roleSchema),
     defaultValues: {
       name: "",
-      access_permission: null,
+      access_permission: [],
     },
   });
-  const AccessPermission = moduleSchema.flatMap((ap) => {
-    if (ap.subCategory) {
-      return ap.subCategory;
-    } else {
-      return [ap]; // Wrap in an array to maintain consistency
-    }
-  });
-
-  const handleFormValue = () => {
-    setValue("name", pokedData?.name || "");
-    setValue(
-      "access_permission",
-      moduleSchema.filter((item) => {
-        if (pokedData?.access_permission) {
-          if (pokedData.access_permission.includes(item.name)) {
-            return true; // Include if main category matches
-          } else if (item.subCategory) {
-            // Check sub-categories if present
-            return item.subCategory.some((subItem) =>
-              pokedData.access_permission.includes(subItem.name)
-            );
-          }
-        }
-        return false;
-      })
-    );
-  };
 
   useEffect(() => {
-    if (open == true && pokedData) {
-      handleFormValue();
+    if (open && data) {
+      // Populate form with data when the dialog opens
+      setValue("name", data?.name || "");
+      setValue(
+        "access_permission",
+        moduleSchema.filter((item) => {
+          if (data?.access_permission) {
+            if (data.access_permission.includes(item.name)) {
+              return true; // Include if main category matches
+            } else if (item.subCategory) {
+              // Check sub-categories if present
+              return item.subCategory.some((subItem) =>
+                data.access_permission.includes(subItem.name)
+              );
+            }
+          }
+          return false;
+        })
+      );
     }
-  }, [open, data]);
-  console.log({ pokedData });
+  }, [open, data, setValue]);
+
+  const handleClose = () => {
+    reset(); // Reset form values
+    closeHandler(); // Close the dialog
+  };
 
   const submitHandler = (roleData) => {
     const body = {
       name: roleData.name,
       access_permission: roleData.access_permission.map((item) => item.name),
     };
-    const updateBody = {
-      name: roleData.name,
-      access_permission: roleData.access_permission.map((item) => item.name),
-    };
 
     if (isUpdate) {
-      updateRole({ id: pokedData.id, ...updateBody })
+      updateRole({ id: data.id, ...body })
+        .unwrap()
         .then((res) => {
-          toast.success(res?.data?.message);
+          toast.success(res?.message);
           reset();
-          closeHandler();
+          handleClose();
         })
         .catch((error) => {
           toast.error(error.data?.message);
           reset();
-          closeHandler();
+          handleClose();
         });
     } else {
       addRole(body)
@@ -116,101 +104,99 @@ const RoleCreate = ({
         .then((res) => {
           toast.success(res?.message);
           reset();
-          closeHandler();
+          handleClose();
         })
         .catch((error) => {
           toast.error(error.data?.message);
-          closeHandler();
-          reset();
+          handleClose();
         });
     }
   };
 
   return (
-    <>
-      <Dialog open={open} onClose={closeHandler}>
-        <DialogTitle>
-          {isUpdate
-            ? infos.role_dialog_update_title
-            : infos.role_dialog_add_title}
-        </DialogTitle>
-        <br />
-        <DialogContent>
-          <form onSubmit={handleSubmit(submitHandler)} id="submit-form">
-            <Grid container>
-              <Grid item xs={12}>
-                <Controller
-                  name="name"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      disabled={isViewOnly}
-                      fullWidth
-                      label="Role Name"
-                      helperText={errors.name && errors.name?.message}
-                      error={!!errors.name}
-                    />
-                  )}
-                />
-              </Grid>
-              <br />
-              <Grid item xs={12}>
-                <CustomAutoComplete
-                  control={control}
-                  name="access_permission"
-                  filterOptions={createFilterOptions({
-                    limit: 100,
-                  })}
-                  size="small"
-                  id="grouped-demo"
-                  multiple
-                  disabled={isViewOnly}
-                  disableCloseOnSelect={true}
-                  options={AccessPermission ?? []}
-                  getOptionLabel={(option) => option?.name ?? []}
-                  getOptionKey={(option, index) => index}
-                  isOptionEqualToValue={(option, value) => {
-                    console.log({ value });
-                    return option?.name === value?.name;
-                  }}
-                  renderOption={(props, option, { selected }) => (
-                    <ListItem {...props}>
-                      <Checkbox
-                        icon={<CheckBoxOutlineBlankRounded />}
-                        checkedIcon={<CheckBoxRounded />}
-                        style={{ marginRight: 8 }}
-                        checked={selected}
-                      />
-                      {option?.name}
-                    </ListItem>
-                  )}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Access Permissions"
-                      fullWidth
-                      error={!!errors?.access_permission}
-                      helperText={errors?.access_permission?.message}
-                    />
-                  )}
-                />
-              </Grid>
+    <Dialog open={open} onClose={handleClose}>
+      <DialogTitle>
+        {isUpdate
+          ? infos.role_dialog_update_title
+          : infos.role_dialog_add_title}
+      </DialogTitle>
+      <br />
+      <DialogContent>
+        <form onSubmit={handleSubmit(submitHandler)} id="submit-form">
+          <Grid container>
+            <Grid item xs={12}>
+              <Controller
+                name="name"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    disabled={isViewOnly}
+                    fullWidth
+                    label="Role Name"
+                    helperText={errors.name && errors.name?.message}
+                    error={!!errors.name}
+                  />
+                )}
+              />
             </Grid>
-          </form>
-        </DialogContent>
-        <DialogActions>
-          {!isViewOnly && (
-            <Button variant="contained" type="submit" form="submit-form">
-              {isUpdate ? "Save" : "Create"}
-            </Button>
-          )}
-          <Button onClick={closeHandler} color="error">
-            CANCEL
+            <br />
+            <Grid item xs={12}>
+              <CustomAutoComplete
+                control={control}
+                name="access_permission"
+                filterOptions={createFilterOptions({
+                  limit: 100,
+                })}
+                size="small"
+                id="grouped-demo"
+                multiple
+                disabled={isViewOnly}
+                disableCloseOnSelect={true}
+                options={moduleSchema.flatMap((ap) =>
+                  ap.subCategory ? ap.subCategory : [ap]
+                )}
+                getOptionLabel={(option) => option?.name ?? ""}
+                getOptionKey={(option, index) => index}
+                isOptionEqualToValue={(option, value) =>
+                  option?.name === value?.name
+                }
+                renderOption={(props, option, { selected }) => (
+                  <ListItem {...props}>
+                    <Checkbox
+                      icon={<CheckBoxOutlineBlankRounded />}
+                      checkedIcon={<CheckBoxRounded />}
+                      style={{ marginRight: 8 }}
+                      checked={selected}
+                    />
+                    {option?.name}
+                  </ListItem>
+                )}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Access Permissions"
+                    fullWidth
+                    error={!!errors?.access_permission}
+                    helperText={errors?.access_permission?.message}
+                  />
+                )}
+              />
+            </Grid>
+          </Grid>
+        </form>
+      </DialogContent>
+      <DialogActions>
+        {!isViewOnly && (
+          <Button variant="contained" type="submit" form="submit-form">
+            {isUpdate ? "Save" : "Create"}
           </Button>
-        </DialogActions>
-      </Dialog>
-    </>
+        )}
+        <Button onClick={handleClose} color="error">
+          CANCEL
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 };
 

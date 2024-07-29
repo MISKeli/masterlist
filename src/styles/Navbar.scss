@@ -3,4 +3,35 @@
   display: flex;
   justify-content: space-between;
   background-color: #1e283d;
+
+  &__name {
+    display: flex;
+    align-items: center;
+    //color: rgb(255, 255, 255);
+  }
+  &__name-typo {
+    color: $primary-main;
+  }
+  &__name-icon {
+    color: $primary-main;
+    :hover {
+      color: $primary-dark;
+      transition: 0.5s;
+    }
+  }
+
+  &__name-logout {
+    &.MuiListItem-root {
+      color: red; // Initial color for Logout text
+
+      &:hover {
+        color: darkred; // Color change on hover
+        transition: color 0.5s; // Smooth transition over 0.5 seconds
+      }
+
+      .MuiListItemIcon-root {
+        color: lightcoral; // Color for Logout icon
+      }
+    }
+  }
 }

@@ -32,9 +32,10 @@ import RoleCreate from "../components/roleManagement/RoleCreate";
 
 const RoleManagementPage = () => {
   const [open, setOpen] = useState(false);
-  const [view, setView] = useState("");
+  //const [view, setView] = useState("");
   const [viewOnly, setViewOnly] = useState(false);
   const [isUpdate, setIsUpdate] = useState(false);
+  const dispatch = useDispatch();
   const [anchorEl, setAnchorEl] = useState(null);
 
   const pokedData = useSelector((state) => state.auth.pokedData);
@@ -42,16 +43,30 @@ const RoleManagementPage = () => {
   const { data: roleData, isLoading: isRoleLoading } = useGetRoleQuery();
   const [archive] = useArchivedRoleMutation();
 
-  const handleArchive = () => {
-    archive(pokedData.id)
-      .unwrap()
-      .then((res) => {
-        toast.success(res?.message);
-      })
-      .catch((error) => {
-        toast.error(error?.message);
-      });
+  const clearPokedData = () => {
+    dispatch(setPokedData(null)); // Clear pokedData
   };
+
+  const handlePokedData = (data) => {
+    console.log({ pokedData });
+    dispatch(setPokedData(data));
+  };
+
+  const handleArchive = () => {
+    if (pokedData?.id) {
+      archive(pokedData.id)
+        .unwrap()
+        .then((res) => {
+          toast.success(res?.message);
+          clearPokedData();
+        })
+        .catch((error) => {
+          toast.error(error?.message);
+          clearPokedData();
+        });
+    }
+  };
+
   const openDialogForUpdate = () => {
     setOpen(true);
     setIsUpdate(true);
@@ -59,25 +74,26 @@ const RoleManagementPage = () => {
 
   const openPopUp = () => {
     setOpen(true);
+    setViewOnly(false)
   };
 
   const closePopUp = () => {
     setOpen(false);
-    setView(""); // Reset view state
+    //setView(""); // Reset view state
     setViewOnly(false);
     setIsUpdate(false); // Reset isEdit state
     setAnchorEl(null);
+    clearPokedData()
   };
   // di ko pa gets
   const handlePopoverOpen = (event, roleInfo) => {
     setAnchorEl(event.currentTarget);
-    setIsUpdate(false);
-    setView(roleInfo);
+    dispatch(setPokedData(roleInfo));
   };
 
   const handlePopoverClose = () => {
     setAnchorEl(null);
-    setIsUpdate(false);
+    //setIsUpdate(false);
   };
 
   const TableColumn = [
@@ -88,12 +104,6 @@ const RoleManagementPage = () => {
     { id: "created_at", name: "Date Created" },
     { id: "action", name: "Action" },
   ];
-  const dispatch = useDispatch();
-
-  const handlePokedData = (data) => {
-    console.log({ pokedData });
-    dispatch(setPokedData(data));
-  };
 
   return (
     <>
@@ -101,10 +111,10 @@ const RoleManagementPage = () => {
         //THIS ARE THE PROPS
         open={open}
         closeHandler={closePopUp}
-        data={view}
+        data={pokedData}
         isViewOnly={viewOnly}
         isUpdate={isUpdate}
-        handlePopoverClose
+        
       />
       <Box className="masterlist-main">
         <Box className="masterlist-main__header">
@@ -145,10 +155,10 @@ const RoleManagementPage = () => {
                     <TableCell>{roleInfo.name}</TableCell>
                     <TableCell
                       onClick={() => {
-                        setView(roleInfo);
+                        //setView(roleInfo);
                         openPopUp();
                         setViewOnly(true);
-                        handlePokedData(roleInfo)
+                        handlePokedData(roleInfo);
                       }}
                       style={{
                         cursor: "pointer",
@@ -173,7 +183,7 @@ const RoleManagementPage = () => {
                       <MoreVertOutlined
                         onClick={(event) => {
                           handlePopoverOpen(event, roleInfo);
-                          handlePokedData(roleInfo);
+                          
                         }}
                         style={{ cursor: "pointer" }}
                       />
@@ -201,7 +211,7 @@ const RoleManagementPage = () => {
                 variant="text"
                 onClick={() => {
                   handlePopoverClose();
-                  openDialogForUpdate(true);
+                  openDialogForUpdate();
                 }}
                 startIcon={<EditRounded />}
               >

@@ -1,7 +1,68 @@
+@import "__palette.module";
 .users-main {
-    padding: 2rem;
+  padding: 2rem;
   &__header {
     display: flex;
     justify-content: space-between;
+  }
+
+  
+
+}
+// Todo.scss
+
+// Todo.scss
+
+.pagination {
+  margin-top: 16px; // Example margin top, adjust as needed
+
+  .MuiTablePagination-root {
+    display: flex;
+    justify-content: center; // Center align pagination items
+    border-radius: 8px; // Rounded corners
+    overflow: hidden; // Hide overflow from the border radius
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1); // Soft shadow for depth
+    background-color: #f5f5f5; // Background color
+  }
+
+  .MuiTablePagination-toolbar {
+    padding: 0; // Remove default padding
+  }
+
+  .MuiTablePagination-input {
+    margin-left: 16px; // Space between navigation buttons and input
+    color: $primary-main; // Text color
+    font-weight: bold; // Bold text for visibility
+    font-size: 14px; // Font size
+  }
+
+  .MuiTablePagination-actions {
+    margin-right: 16px; // Space between input and action buttons
+
+    .MuiButtonBase-root {
+      min-width: 36px; // Adjust button width
+      height: 36px; // Adjust button height
+      border-radius: 50%; // Circle buttons
+      margin: 0 4px; // Space between buttons
+      font-size: 16px; // Font size
+      font-weight: bold; // Bold text for visibility
+      color: $primary-main; // Text color
+      background-color: $primary-contrast-text; // Button background color
+      box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1); // Soft shadow for depth
+
+      &:hover {
+        background-color: $primary-dark; // Hover background color
+        color: $primary-contrast-text; // Hover text color
+      }
+
+      &:disabled {
+        color: $primary-light; // Disabled button text color
+      }
+    }
+
+    .Mui-selected {
+      background-color: $primary-dark; // Selected button background color
+      color: $primary-contrast-text; // Selected button text color
+    }
   }
 }

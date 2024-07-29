@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import {
   Box,
   Button,
+  Checkbox,
   Chip,
   Paper,
   Popover,
@@ -10,6 +11,7 @@ import {
   TableCell,
   TableContainer,
   TableHead,
+  TablePagination,
   TableRow,
   Typography,
 } from "@mui/material";
@@ -31,6 +33,7 @@ import {
   MoreVertOutlined,
 } from "@mui/icons-material";
 import UserCreate from "../components/userAccount/UserCreate";
+import useDebounce from "../components/useDebounce";
 
 const UserAccountPage = () => {
   const TableColumn = [
@@ -73,13 +76,18 @@ const UserAccountPage = () => {
   const [per_page, setPerPage] = useState(10);
   const [pagination, setPagination] = useState(1);
   const [search, setSearch] = useState("");
-  //const debounceValue = useDebounce(search);
+  const debounceValue = useDebounce(search);
   const [anchorEl, setAnchorEl] = useState(null);
   const [status, setStatus] = useState("active");
   const [open, SetOpen] = useState(false);
   const [isUpdate, setIsUpdate] = useState(false);
   const [view, setView] = useState("");
   const [viewOnly, setViewOnly] = useState(false);
+  const [activeRow, setActiveRow] = useState(null);
+
+  const handleToggleStatus = () => {
+    setStatus(status === "active" ? "inactive" : "active");
+  };
 
   const handlePokedData = (data) => {
     console.log({ data });
@@ -89,17 +97,38 @@ const UserAccountPage = () => {
   const setOpenTrue = () => {
     SetOpen(true);
   };
-  const handlePopoverOpen = (event) => {
+  const handlePopoverOpen = (event, rowId) => {
     setAnchorEl(event.currentTarget);
     setIsUpdate(false);
+    setActiveRow(rowId);
   };
 
   const handlePopoverClose = () => {
     setAnchorEl(null);
+    setActiveRow(null);
   };
 
   const [archive] = useArchivedUserMutation();
-  const { data: getUser, isLoadng: isUserLoading } = useGetUserQuery();
+  const { data: getUser, isLoadng: isUserLoading } = useGetUserQuery(
+    {
+      status,
+      search: debounceValue,
+      pagination,
+      page: page + 1,
+      per_page,
+    },
+    { refetchOnFocus: true }
+  );
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    const newRowsPerPage = parseInt(event.target.value);
+    setPerPage(newRowsPerPage);
+    setPage(0); // Reset to first page when rows per page changes
+  };
 
   const handleArchive = () => {
     archive(pokedData.id)
@@ -118,6 +147,7 @@ const UserAccountPage = () => {
     setViewOnly(false);
     setIsUpdate(false); // Reset isEdit state
     setAnchorEl(null);
+    dispatch(setPokedData(null));
   };
 
   const openDialogForUpdate = () => {
@@ -153,12 +183,29 @@ const UserAccountPage = () => {
             {infos.users_add_button}
           </Button>
         </Box>
-        <br />
+
         <Box className="masterlist-main__content">
           <TableContainer
             component={Paper}
             sx={{ overflow: "auto", height: "100%" }}
           >
+            <Box className="masterlist-content__header">
+              <Box className="masterlist-header__archieved">
+                <Checkbox
+                  checked={status === "inactive"}
+                  onChange={handleToggleStatus}
+                  color="error"
+                />
+                <Typography
+                  variant="button"
+                  color={status === "active" ? "primary" : "error"}
+                >
+                  Archived
+                </Typography>
+              </Box>
+              <Box className="masterlist-header__search"></Box>
+            </Box>
+
             <Table stickyHeader>
               <TableHead>
                 <TableRow>
@@ -169,7 +216,10 @@ const UserAccountPage = () => {
               </TableHead>
               <TableBody>
                 {getUser?.result.data.map((userAcc, index) => (
-                  <TableRow key={index}>
+                  <TableRow
+                    key={index}
+                    className={activeRow === userAcc.id ? "active" : ""}
+                  >
                     <TableCell>{userAcc.role_id}</TableCell>
                     <TableCell>{userAcc.id_prefix}</TableCell>
                     <TableCell>{userAcc.id_no}</TableCell>
@@ -182,12 +232,10 @@ const UserAccountPage = () => {
                     <TableCell>
                       <Chip
                         variant="outlined"
-                        label={userAcc.is_active ? "active" : "inactive"}
-                        color={
-                          userAcc.is_active === "active" ? "error" : "success"
-                        }
+                        label={status === "active" ? "active" : "inactive"}
+                        color={status === "active" ? "success" : "error"}
                         size="small"
-                      ></Chip>
+                      />
                     </TableCell>
                     <TableCell>
                       <MoreVertOutlined
@@ -242,7 +290,18 @@ const UserAccountPage = () => {
             </Button>
           </Box>
         </Popover>
-        <Box className="masterlist-main__footer"></Box>
+        <Box className="masterlist-main__footer">
+          <TablePagination
+            component="div"
+            className="pagination"
+            count={getUser?.result.total}
+            page={page}
+            rowsPerPage={per_page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            rowsPerPageOptions={[5, 10, 25]}
+          />
+        </Box>
       </Box>
     </>
   );
