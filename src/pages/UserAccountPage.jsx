@@ -4,6 +4,10 @@ import {
   Button,
   Checkbox,
   Chip,
+  Divider,
+  IconButton,
+  InputBase,
+  Menu,
   Paper,
   Popover,
   Table,
@@ -13,6 +17,7 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  TextField,
   Typography,
 } from "@mui/material";
 import { infos } from "../schemas/infos";
@@ -28,9 +33,12 @@ import {
 } from "../features/api/userApi";
 import { toast } from "sonner";
 import {
+  AccountCircle,
   ArchiveRounded,
+  Directions,
   EditRounded,
   MoreVertOutlined,
+  Search,
 } from "@mui/icons-material";
 import UserCreate from "../components/userAccount/UserCreate";
 import useDebounce from "../components/useDebounce";
@@ -155,7 +163,7 @@ const UserAccountPage = () => {
     setIsUpdate(true);
   };
 
-  console.log({ getUser });
+  //console.log({ getUser });
   return (
     <>
       <Box className="masterlist-main">
@@ -184,28 +192,54 @@ const UserAccountPage = () => {
           </Button>
         </Box>
 
-        <Box className="masterlist-main__content">
+          <Box className="masterlist-content__header">
+            <Box className="masterlist-header__archieved">
+              <Checkbox
+                checked={status === "inactive"}
+                onChange={handleToggleStatus}
+                color="error"
+              />
+              <Typography
+                variant="button"
+                color={status === "active" ? "primary" : "error"}
+              >
+                Archived
+              </Typography>
+            </Box>
+            <Box className="masterlist-header__search">
+              <Box
+                component="form"
+                sx={{
+                  p: "2px 4px",
+                  display: "flex",
+                  alignItems: "center",width: "250px"
+                }}
+              >
+                <InputBase
+                  sx={{ ml: 0.5, flex: 1 }}
+                  placeholder="Search "
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                  }}
+                />
+
+                <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
+                <IconButton
+                  color="primary"
+                  type="button"
+                  sx={{ p: "10px" }}
+                  aria-label="search"
+                >
+                  <Search />
+                </IconButton>
+              </Box>
+            </Box>
+          </Box>
+          <Box className="masterlist-main__content">
           <TableContainer
             component={Paper}
             sx={{ overflow: "auto", height: "100%" }}
           >
-            <Box className="masterlist-content__header">
-              <Box className="masterlist-header__archieved">
-                <Checkbox
-                  checked={status === "inactive"}
-                  onChange={handleToggleStatus}
-                  color="error"
-                />
-                <Typography
-                  variant="button"
-                  color={status === "active" ? "primary" : "error"}
-                >
-                  Archived
-                </Typography>
-              </Box>
-              <Box className="masterlist-header__search"></Box>
-            </Box>
-
             <Table stickyHeader>
               <TableHead>
                 <TableRow>

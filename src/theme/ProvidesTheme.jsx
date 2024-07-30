@@ -14,9 +14,9 @@ const ProvidesTheme = ({ children }) => {
       MuiTable: {
         styleOverrides: {
           root: {
-            tableLayout: "auto",
-            height: "100%",
-            overflow: "auto",
+           // tableLayout: "auto",
+            //height: "100%",
+            //overflow: "auto",
           },
         },
       },

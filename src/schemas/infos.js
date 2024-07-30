@@ -2,8 +2,9 @@ export const infos = {
   app_title: "Masterlist",
   app_subtitle: "Masterlist",
 
-  greeting_title: "Welcome!",
-  greeting_subtitle: "Morethan 10 experience!",
+  greeting_title: "Hello there,",
+  greeting_subtitle:
+    "Welcome back! Continue efficiently managing your master lists.",
 
   role_title: "Role Management",
   role_add_button: "+ Create New Role",

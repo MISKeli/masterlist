@@ -8,22 +8,32 @@
   &__header {
     display: flex;
     justify-content: space-between;
+    padding: 16px; // Adjust padding as needed
+    align-items: center;
   }
 
   .masterlist-main__content {
+    
     overflow: auto;
     flex: 1;
-    .masterlist-content__header {
-      .masterlist-header__archieved {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-      }
+
+  }
+  .masterlist-content__header {
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px; // Adjust padding as needed
+    .masterlist-header__archieved {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
     }
   }
-
   // Style for the table rows
   table {
+    width: 100%;
+    border-collapse: collapse;
     & tbody {
       tr {
         // Add a transition for smooth background color change
@@ -42,29 +52,5 @@
   .MuiChip-root {
     // Transition for smooth color change
     transition: background-color 0.3s ease, color 0.3s ease;
-
-    &:hover {
-      // Default hover behavior
-      background-color: $success-light; // Use your SCSS variable here
-      color: #fff; // Change text color if needed to ensure contrast
-    }
-
-    .masterlist-main .active & {
-      // Change the Chip hover color when its row is active
-      &:hover {
-        background-color: $error-light; // Change to error-light when row is active
-      }
-    }
-
-    // Conditional styling based on chip color
-    &[data-mui-color="success"] {
-      background-color: $success-light; // Define success chip background color
-      color: #fff; // Ensure contrast for text
-    }
-
-    &[data-mui-color="error"] {
-      background-color: $error-light; // Define error chip background color
-      color: #fff; // Ensure contrast for text
-    }
   }
 }

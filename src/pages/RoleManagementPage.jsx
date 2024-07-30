@@ -1,7 +1,11 @@
 import {
   Box,
   Button,
+  Checkbox,
   Chip,
+  Divider,
+  IconButton,
+  InputBase,
   Paper,
   Popover,
   Table,
@@ -9,6 +13,7 @@ import {
   TableCell,
   TableContainer,
   TableHead,
+  TablePagination,
   TableRow,
   Typography,
 } from "@mui/material";
@@ -24,29 +29,58 @@ import {
   ArchiveRounded,
   EditRounded,
   MoreVertOutlined,
+  Search,
 } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
 import { setPokedData } from "../features/slice/authSlice";
 import RoleCreate from "../components/roleManagement/RoleCreate";
+import useDebounce from "../components/useDebounce";
 
 const RoleManagementPage = () => {
   const [open, setOpen] = useState(false);
-  //const [view, setView] = useState("");
+
   const [viewOnly, setViewOnly] = useState(false);
   const [isUpdate, setIsUpdate] = useState(false);
   const dispatch = useDispatch();
   const [anchorEl, setAnchorEl] = useState(null);
+  const [status, setStatus] = useState("active");
+  const [page, setPage] = useState(0);
+  const [per_page, setPerPage] = useState(10);
+  const [pagination, setPagination] = useState(1);
+  const [search, setSearch] = useState("");
+  const debounceValue = useDebounce(search);
 
   const pokedData = useSelector((state) => state.auth.pokedData);
 
-  const { data: roleData, isLoading: isRoleLoading } = useGetRoleQuery();
+  const { data: roleData, isLoading: isRoleLoading } = useGetRoleQuery({
+    status,
+    search: debounceValue,
+    pagination,
+    page: page + 1,
+    per_page,
+  },
+  { refetchOnFocus: true }
+);
+  const handleToggleStatus = () => {
+    setStatus(status === "active" ? "inactive" : "active");
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    const newRowsPerPage = parseInt(event.target.value);
+    setPerPage(newRowsPerPage);
+    setPage(0); // Reset to first page when rows per page changes
+  };
   const [archive] = useArchivedRoleMutation();
 
   const clearPokedData = () => {
     dispatch(setPokedData(null)); // Clear pokedData
   };
-
+  console.log({ roleData });
   const handlePokedData = (data) => {
     console.log({ pokedData });
     dispatch(setPokedData(data));
@@ -74,7 +108,7 @@ const RoleManagementPage = () => {
 
   const openPopUp = () => {
     setOpen(true);
-    setViewOnly(false)
+    setViewOnly(false);
   };
 
   const closePopUp = () => {
@@ -83,7 +117,7 @@ const RoleManagementPage = () => {
     setViewOnly(false);
     setIsUpdate(false); // Reset isEdit state
     setAnchorEl(null);
-    clearPokedData()
+    clearPokedData();
   };
   // di ko pa gets
   const handlePopoverOpen = (event, roleInfo) => {
@@ -114,7 +148,6 @@ const RoleManagementPage = () => {
         data={pokedData}
         isViewOnly={viewOnly}
         isUpdate={isUpdate}
-        
       />
       <Box className="masterlist-main">
         <Box className="masterlist-main__header">
@@ -134,7 +167,51 @@ const RoleManagementPage = () => {
             {infos.role_add_button}
           </Button>
         </Box>
-        <br />
+        <Box className="masterlist-content__header">
+          <Box className="masterlist-header__archieved">
+            <Checkbox
+              checked={status === "inactive"}
+              onChange={handleToggleStatus}
+              color="error"
+            />
+            <Typography
+              variant="button"
+              color={status === "active" ? "primary" : "error"}
+            >
+              Archived
+            </Typography>
+          </Box>
+          <Box className="masterlist-header__search">
+            <Box
+              component="form"
+              sx={{
+                p: "2px 4px",
+                display: "flex",
+                alignItems: "center",
+                width: "250px",
+              }}
+            >
+              <InputBase
+                sx={{ ml: 0.5, flex: 1 }}
+                placeholder="Search "
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                }}
+              />
+
+              <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
+              <IconButton
+                color="primary"
+                type="button"
+                sx={{ p: "10px" }}
+                aria-label="search"
+              >
+                <Search />
+              </IconButton>
+            </Box>
+          </Box>
+        </Box>
+
         <Box className="masterlist-main__content">
           <TableContainer
             component={Paper}
@@ -183,7 +260,6 @@ const RoleManagementPage = () => {
                       <MoreVertOutlined
                         onClick={(event) => {
                           handlePopoverOpen(event, roleInfo);
-                          
                         }}
                         style={{ cursor: "pointer" }}
                       />
@@ -231,7 +307,18 @@ const RoleManagementPage = () => {
           </Popover>
         </Box>
 
-        <Box className="masterlist-main__footer"></Box>
+        <Box className="masterlist-main__footer">
+        <TablePagination
+            component="div"
+            className="pagination"
+            count={roleData?.result.total}
+            page={page}
+            rowsPerPage={per_page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            rowsPerPageOptions={[5, 10, 25]}
+          />
+        </Box>
       </Box>
     </>
   );
