@@ -8,6 +8,7 @@ export default configureStore({
   reducer: {
     [indexApi.reducerPath]: indexApi.reducer,
     [cedarApi.reducerPath]: cedarApi.reducer,
+
     auth: authSlice,
     misc: miscSlice,
   },

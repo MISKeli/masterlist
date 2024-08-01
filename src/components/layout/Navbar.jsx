@@ -20,10 +20,17 @@ import {
 import { logoutSlice } from "../../features/slice/authSlice";
 import ConfirmedDialog from "../ConfirmedDialog";
 import "../../styles/Navbar.scss";
+import PasswordDialog from "./password/PasswordDialog";
 
 const Navbar = () => {
   const sidebar = useSelector((state) => state.misc.sidebar);
   const dispatch = useDispatch();
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [open, setopen] = useState(false);
+
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+  const [openPasswordDialog, setOpenPasswordDialog] = useState(false);
+  const [isReset, setIsReset] = useState(false);
 
   const setSidebar = (set) => {
     dispatch(
@@ -32,10 +39,12 @@ const Navbar = () => {
       })
     );
   };
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [open, setopen] = useState(false);
 
   const handleClose = () => {
+    setOpenConfirmDialog(false);
+    setOpenPasswordDialog(false);
+  
+
     setopen(false);
   };
 
@@ -49,6 +58,13 @@ const Navbar = () => {
   const handleLogoutClick = () => {
     setAnchorEl(null);
     setopen(true);
+  };
+
+  const handleChangePasswordClick = () => {
+    setAnchorEl(null);
+    setIsReset(false);
+    setOpenPasswordDialog(true);
+    
   };
 
   const logout = () => {
@@ -76,7 +92,7 @@ const Navbar = () => {
           </IconButton>
         </Box>
 
-        <Popover 
+        <Popover
           open={Boolean(anchorEl)}
           anchorEl={anchorEl}
           onClose={handlePopoverClose}
@@ -98,7 +114,7 @@ const Navbar = () => {
             </MenuItem>
           </Box>
           <Box className="navbar__name-changePass">
-            <MenuItem onClick={handlePopoverClose}>
+            <MenuItem onClick={handleChangePasswordClick}>
               <ListItemIcon>
                 <LockReset />
               </ListItemIcon>
@@ -112,6 +128,12 @@ const Navbar = () => {
           onYes={logout}
           title={"Confirm Logout"}
           description={"Are you sure you want to log out?"}
+        />
+        <PasswordDialog
+          open={openPasswordDialog}
+          onClose={handleClose}
+          isReset={isReset}
+          userId={user.id}
         />
       </>
     </Box>

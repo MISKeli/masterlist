@@ -15,4 +15,7 @@ export const infos = {
   users_add_button: "+ Create New Account",
   users_dialog_add_title: "Add Account",
   users_dialog_update_title: "Update Acount",
+
+  password_dialog_reset_title: "Reset Password",
+  password_dialog_change_title: "Change Password",
 };

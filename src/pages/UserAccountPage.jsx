@@ -23,7 +23,7 @@ import {
 import { infos } from "../schemas/infos";
 import "../styles/UserAccountPage.scss";
 import { useDispatch, useSelector } from "react-redux";
-import { setPokedData } from "../features/slice/authSlice";
+
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { userSchema } from "../schemas/validationSchema";
@@ -37,11 +37,16 @@ import {
   ArchiveRounded,
   Directions,
   EditRounded,
+  LockReset,
   MoreVertOutlined,
   Search,
 } from "@mui/icons-material";
 import UserCreate from "../components/userAccount/UserCreate";
 import useDebounce from "../components/useDebounce";
+import PasswordDialog from "../components/layout/password/PasswordDialog";
+import { useUpdateResetPasswordMutation } from "../features/api/passwordApi";
+import { setPokedData } from "../features/slice/authSlice";
+import ConfirmedDialog from "../components/ConfirmedDialog";
 
 const UserAccountPage = () => {
   const TableColumn = [
@@ -93,12 +98,14 @@ const UserAccountPage = () => {
   const [viewOnly, setViewOnly] = useState(false);
   const [activeRow, setActiveRow] = useState(null);
 
+  const [openPasswordDialog, setOpenPasswordDialog] = useState(false);
+  const [isReset, setIsReset] = useState(false);
+
   const handleToggleStatus = () => {
     setStatus(status === "active" ? "inactive" : "active");
   };
 
   const handlePokedData = (data) => {
-    console.log({ data });
     dispatch(setPokedData(data));
   };
 
@@ -110,12 +117,16 @@ const UserAccountPage = () => {
     setIsUpdate(false);
     setActiveRow(rowId);
   };
+  const openPasswordDialogForReset = () => {
+    setIsReset(true);
+    setOpenPasswordDialog(true);
+  };
 
   const handlePopoverClose = () => {
     setAnchorEl(null);
     setActiveRow(null);
   };
-
+  const [resetPassword] = useUpdateResetPasswordMutation();
   const [archive] = useArchivedUserMutation();
   const { data: getUser, isLoadng: isUserLoading } = useGetUserQuery(
     {
@@ -138,6 +149,23 @@ const UserAccountPage = () => {
     setPage(0); // Reset to first page when rows per page changes
   };
 
+  const handleResetPasswordClick = () => {
+    setAnchorEl(null);
+    setIsReset(true);
+    setOpenPasswordDialog(true);
+  };
+
+  const handleReset = () => {
+    resetPassword(pokedData.id)
+      .unwrap()
+      .then((res) => {
+        toast.success(res?.message);
+      })
+      .catch((error) => {
+        toast.error(error?.message);
+      });
+    console.log({ pokedData });
+  };
   const handleArchive = () => {
     archive(pokedData.id)
       .unwrap()
@@ -163,7 +191,6 @@ const UserAccountPage = () => {
     setIsUpdate(true);
   };
 
-  //console.log({ getUser });
   return (
     <>
       <Box className="masterlist-main">
@@ -192,50 +219,51 @@ const UserAccountPage = () => {
           </Button>
         </Box>
 
-          <Box className="masterlist-content__header">
-            <Box className="masterlist-header__archieved">
-              <Checkbox
-                checked={status === "inactive"}
-                onChange={handleToggleStatus}
-                color="error"
-              />
-              <Typography
-                variant="button"
-                color={status === "active" ? "primary" : "error"}
-              >
-                Archived
-              </Typography>
-            </Box>
-            <Box className="masterlist-header__search">
-              <Box
-                component="form"
-                sx={{
-                  p: "2px 4px",
-                  display: "flex",
-                  alignItems: "center",width: "250px"
+        <Box className="masterlist-content__header">
+          <Box className="masterlist-header__archieved">
+            <Checkbox
+              checked={status === "inactive"}
+              onChange={handleToggleStatus}
+              color="error"
+            />
+            <Typography
+              variant="button"
+              color={status === "active" ? "primary" : "error"}
+            >
+              Archived
+            </Typography>
+          </Box>
+          <Box className="masterlist-header__search">
+            <Box
+              component="form"
+              sx={{
+                p: "2px 4px",
+                display: "flex",
+                alignItems: "center",
+                width: "250px",
+              }}
+            >
+              <InputBase
+                sx={{ ml: 0.5, flex: 1 }}
+                placeholder="Search "
+                onChange={(e) => {
+                  setSearch(e.target.value);
                 }}
-              >
-                <InputBase
-                  sx={{ ml: 0.5, flex: 1 }}
-                  placeholder="Search "
-                  onChange={(e) => {
-                    setSearch(e.target.value);
-                  }}
-                />
+              />
 
-                <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
-                <IconButton
-                  color="primary"
-                  type="button"
-                  sx={{ p: "10px" }}
-                  aria-label="search"
-                >
-                  <Search />
-                </IconButton>
-              </Box>
+              <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
+              <IconButton
+                color="primary"
+                type="button"
+                sx={{ p: "10px" }}
+                aria-label="search"
+              >
+                <Search />
+              </IconButton>
             </Box>
           </Box>
-          <Box className="masterlist-main__content">
+        </Box>
+        <Box className="masterlist-main__content">
           <TableContainer
             component={Paper}
             sx={{ overflow: "auto", height: "100%" }}
@@ -286,7 +314,7 @@ const UserAccountPage = () => {
           </TableContainer>
         </Box>
 
-        <Popover
+        <Menu
           open={Boolean(anchorEl)}
           anchorEl={anchorEl}
           onClose={handlePopoverClose}
@@ -322,8 +350,15 @@ const UserAccountPage = () => {
             >
               Archive
             </Button>
+            <Button
+              variant="text"
+              onClick={handleResetPasswordClick}
+              startIcon={<LockReset />}
+            >
+              reset password
+            </Button>
           </Box>
-        </Popover>
+        </Menu>
         <Box className="masterlist-main__footer">
           <TablePagination
             component="div"
@@ -337,6 +372,16 @@ const UserAccountPage = () => {
           />
         </Box>
       </Box>
+
+      <ConfirmedDialog
+        open={openPasswordDialog}
+        onClose={() => setOpenPasswordDialog(false)}
+        onYes={handleReset}
+        title={"Reset Password"}
+        description={`Are you sure you want to reset this ${
+          pokedData?.first_name || "this user's"
+        }'s password?`}
+      />
     </>
   );
 };

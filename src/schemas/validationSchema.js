@@ -46,3 +46,10 @@ export const cedarSchema = yup.object().shape({
   username: yup.string().required("Username is required."),
   role_id: yup.string().required("Role ID is required."),
 });
+
+export const changePasswordSchema = yup.object().shape({
+  old_password: yup.string().required("Old Password is required."),
+  new_password: yup.string().required("New Password is required."),
+  confirm_password: yup.string().required("Confirm Password is required."),
+  
+});

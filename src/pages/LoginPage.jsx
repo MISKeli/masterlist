@@ -1,6 +1,6 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Box, Button, Paper, TextField, Typography } from "@mui/material";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { loginSchema } from "../schemas/validationSchema";
 import { infos } from "../schemas/infos";
@@ -10,10 +10,14 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { encrypt } from "../utils/encrypt";
 import { useDispatch, useSelector } from "react-redux";
 import { loginSlice } from "../features/slice/authSlice";
+import { toast } from "sonner";
+import PasswordDialog from "../components/layout/password/PasswordDialog";
 
 const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+  //const [loggedInUser, setLoggedInUser] = useState(null); // For storing user details
   const {
     control,
     handleSubmit,
@@ -27,15 +31,27 @@ const Login = () => {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
   const loginHandler = (data) => {
+    //console.log({ data });
     login(data)
       .unwrap()
       .then((res) => {
-        dispatch(loginSlice({ token: res?.token, user: res?.user }));
         sessionStorage.setItem("token", encrypt(res.token));
+        dispatch(loginSlice({ token: res?.token, user: res?.user }));
         sessionStorage.setItem("user", JSON.stringify(res.user));
-        navigate("/");
+       
+        // Check if username equals password
+          //setLoggedInUser(user);
+          sessionStorage.setItem("uToken", encrypt(data?.username))
+          sessionStorage.setItem("pToken", encrypt(data?.password))
+          setShowPasswordDialog(true);
+     
+          toast.success(res?.message);
+          navigate("/");
+        
       })
-      .catch((error) => console.log({ error }));
+      .catch((error) => {
+        toast.error(error?.data.message);
+      });
   };
   useEffect(() => {
     if (isAuthenticated) {
@@ -93,6 +109,17 @@ const Login = () => {
           <Box className="login-page__card-footer"></Box>
         </Paper>
       </Box>
+
+      {/* Password Dialog */}
+      <PasswordDialog
+        open={showPasswordDialog}
+        onClose={() => {
+          setShowPasswordDialog(false);
+          navigate("/");
+        }}
+        // userId="id"
+        // username="username"
+      />
     </>
   );
 };
