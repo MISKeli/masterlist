@@ -6,6 +6,10 @@ import {
   Divider,
   IconButton,
   InputBase,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
   Paper,
   Popover,
   Table,
@@ -29,6 +33,7 @@ import {
   ArchiveRounded,
   EditRounded,
   MoreVertOutlined,
+  RestoreFromTrashOutlined,
   Search,
 } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
@@ -53,15 +58,16 @@ const RoleManagementPage = () => {
 
   const pokedData = useSelector((state) => state.auth.pokedData);
 
-  const { data: roleData, isLoading: isRoleLoading } = useGetRoleQuery({
-    status,
-    search: debounceValue,
-    pagination,
-    page: page + 1,
-    per_page,
-  },
-  { refetchOnFocus: true }
-);
+  const { data: roleData, isLoading: isRoleLoading } = useGetRoleQuery(
+    {
+      status,
+      search: debounceValue,
+      pagination,
+      page: page + 1,
+      per_page,
+    },
+    { refetchOnFocus: true }
+  );
   const handleToggleStatus = () => {
     setStatus(status === "active" ? "inactive" : "active");
   };
@@ -162,7 +168,10 @@ const RoleManagementPage = () => {
             className="masterlist-header__button"
             variant="contained"
             open={open}
-            onClick={openPopUp}
+            onClick={() => {
+              openPopUp();
+              dispatch(setPokedData(null));
+            }}
           >
             {infos.role_add_button}
           </Button>
@@ -269,46 +278,54 @@ const RoleManagementPage = () => {
               </TableBody>
             </Table>
           </TableContainer>
-          <Popover
+          <Menu
             open={Boolean(anchorEl)}
             anchorEl={anchorEl}
             onClose={handlePopoverClose}
-            anchorOrigin={{
-              vertical: "bottom",
-              horizontal: "center",
-            }}
-            transformOrigin={{
-              vertical: "top",
-              horizontal: "center",
-            }}
           >
-            <Box sx={{ p: 2 }}>
-              <Button
-                variant="text"
-                onClick={() => {
-                  handlePopoverClose();
-                  openDialogForUpdate();
-                }}
-                startIcon={<EditRounded />}
-              >
-                Edit
-              </Button>
-              <Button
-                variant="text"
+            {pokedData?.is_active ? (
+              <>
+                <MenuItem
+                  onClick={() => {
+                    handlePopoverClose();
+                    openDialogForUpdate();
+                  }}
+                >
+                  <ListItemIcon>
+                    <EditRounded />
+                  </ListItemIcon>
+                  <ListItemText primary="Edit" />
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    handlePopoverClose();
+                    handleArchive();
+                  }}
+                >
+                  <ListItemIcon>
+                    <ArchiveRounded />
+                  </ListItemIcon>
+                  <ListItemText primary="Archive" />
+                </MenuItem>
+              </>
+            ) : (
+              <MenuItem
                 onClick={() => {
                   handlePopoverClose();
                   handleArchive();
                 }}
-                startIcon={<ArchiveRounded />}
               >
-                Archive
-              </Button>
-            </Box>
-          </Popover>
+                <ListItemIcon>
+                  <RestoreFromTrashOutlined /> {/* Restore icon */}
+                </ListItemIcon>
+                <ListItemText primary="Restore" />
+              </MenuItem>
+            )}
+          </Menu>
         </Box>
 
         <Box className="masterlist-main__footer">
-        <TablePagination
+          <TablePagination
             component="div"
             className="pagination"
             count={roleData?.result.total}

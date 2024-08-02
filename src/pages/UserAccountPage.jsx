@@ -7,7 +7,10 @@ import {
   Divider,
   IconButton,
   InputBase,
+  ListItemIcon,
+  ListItemText,
   Menu,
+  MenuItem,
   Paper,
   Popover,
   Table,
@@ -39,6 +42,7 @@ import {
   EditRounded,
   LockReset,
   MoreVertOutlined,
+  RestoreFromTrashOutlined,
   Search,
 } from "@mui/icons-material";
 import UserCreate from "../components/userAccount/UserCreate";
@@ -117,14 +121,11 @@ const UserAccountPage = () => {
     setIsUpdate(false);
     setActiveRow(rowId);
   };
-  const openPasswordDialogForReset = () => {
-    setIsReset(true);
-    setOpenPasswordDialog(true);
-  };
 
   const handlePopoverClose = () => {
     setAnchorEl(null);
     setActiveRow(null);
+    //dispatch(setPokedData(null));
   };
   const [resetPassword] = useUpdateResetPasswordMutation();
   const [archive] = useArchivedUserMutation();
@@ -212,7 +213,10 @@ const UserAccountPage = () => {
           </Typography>
           <Button
             className="masterlist-header__button"
-            onClick={setOpenTrue}
+            onClick={() => {
+              setOpenTrue(); // everytime user clicked the usercreate dispatch will clear the pokeddata
+              dispatch(setPokedData(null));
+            }}
             variant="contained"
           >
             {infos.users_add_button}
@@ -313,52 +317,62 @@ const UserAccountPage = () => {
             </Table>
           </TableContainer>
         </Box>
-
         <Menu
           open={Boolean(anchorEl)}
-          anchorEl={anchorEl}
           onClose={handlePopoverClose}
-          anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "center",
-          }}
-          transformOrigin={{
-            vertical: "top",
-            horizontal: "center",
-          }}
+          anchorEl={anchorEl}
         >
-          <Box sx={{ p: 2 }}>
-            <Button
-              variant="text"
-              onClick={() => {
-                handlePopoverClose();
-                openDialogForUpdate(true);
-              }}
-              startIcon={<EditRounded />}
-            >
-              Edit
-            </Button>
-            <Button
-              variant="text"
+          {pokedData?.is_active ? (
+            <>
+              <MenuItem
+                onClick={() => {
+                  handlePopoverClose();
+                  openDialogForUpdate();
+                }}
+              >
+                <ListItemIcon>
+                  <EditRounded />
+                </ListItemIcon>
+                <ListItemText primary="Edit" />
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  handlePopoverClose();
+                  handleArchive();
+                }}
+              >
+                <ListItemIcon>
+                  <ArchiveRounded />
+                </ListItemIcon>
+                <ListItemText primary="Archive" />
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  handleResetPasswordClick();
+                  handlePopoverClose();
+                }}
+              >
+                <ListItemIcon>
+                  <LockReset />
+                </ListItemIcon>
+                <ListItemText primary="Reset Password" />
+              </MenuItem>
+            </>
+          ) : (
+            <MenuItem
               onClick={() => {
                 handlePopoverClose();
                 handleArchive();
-
-                // Implement archive logic here
               }}
-              startIcon={<ArchiveRounded />}
             >
-              Archive
-            </Button>
-            <Button
-              variant="text"
-              onClick={handleResetPasswordClick}
-              startIcon={<LockReset />}
-            >
-              reset password
-            </Button>
-          </Box>
+              <ListItemIcon>
+                <RestoreFromTrashOutlined />
+              </ListItemIcon>
+              <ListItemText primary="Restore" />
+            </MenuItem>
+          )}
         </Menu>
+
         <Box className="masterlist-main__footer">
           <TablePagination
             component="div"

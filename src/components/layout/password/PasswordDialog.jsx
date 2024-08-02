@@ -6,6 +6,8 @@ import {
   DialogContent,
   DialogTitle,
   FormControlLabel,
+  IconButton,
+  Stack,
   TextField,
 } from "@mui/material";
 import React, { useState } from "react";
@@ -18,9 +20,17 @@ import { toast } from "sonner";
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { changePasswordSchema } from "../../../schemas/validationSchema";
+import { decrypt, encrypt } from "../../../utils/encrypt";
+import { Close } from "@mui/icons-material";
 
 const PasswordDialog = ({ open, onClose, isReset, userId, username }) => {
   const [showPassword, setShowPassword] = useState(false);
+  const { decryptedData: decryptedUToken } = decrypt(
+    sessionStorage.getItem("uToken")
+  );
+  const { decryptedData: decryptedPToken } = decrypt(
+    sessionStorage.getItem("pToken")
+  );
 
   const {
     control,
@@ -52,6 +62,9 @@ const PasswordDialog = ({ open, onClose, isReset, userId, username }) => {
       .unwrap()
       .then((res) => {
         toast.success(res?.message);
+        sessionStorage.setItem("pToken", encrypt(data.new_password));
+
+        console.log({ res });
         reset();
         onClose();
       })
@@ -65,8 +78,17 @@ const PasswordDialog = ({ open, onClose, isReset, userId, username }) => {
   };
 
   return (
-    <Dialog open={open} onClose={handleClose}>
-      <DialogTitle>Change Password</DialogTitle>
+    <Dialog open={open}>
+      <DialogTitle>
+        <Stack direction="row" justifyContent="space-between">
+          Change Password
+          {decryptedUToken !== decryptedPToken ? (
+            <IconButton onClick={handleClose}>
+              <Close />
+            </IconButton>
+          ) : null}
+        </Stack>
+      </DialogTitle>
       <DialogContent>
         <Controller
           name="old_password"
@@ -130,9 +152,11 @@ const PasswordDialog = ({ open, onClose, isReset, userId, username }) => {
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose} color="error">
-          Cancel
-        </Button>
+        {decryptedUToken !== decryptedPToken ? (
+          <Button onClick={handleClose} color="error">
+            Cancel
+          </Button>
+        ) : null}
         <Button onClick={handleSubmit(onSubmit)}>Change Password</Button>
       </DialogActions>
     </Dialog>

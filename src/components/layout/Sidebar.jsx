@@ -63,7 +63,10 @@ const Sidebar = () => {
                   {module.subCategory.map((subcat, subindex) => {
                     if (AccessPermission?.includes(subcat.name)) {
                       return (
-                        <Box className="sidebar__content__subcat" key={subindex}>
+                        <Box
+                          className="sidebar__content__subcat"
+                          key={subindex}
+                        >
                           <ModuleNavigations
                             icon={
                               hoveredItem === subcat.name ? (
